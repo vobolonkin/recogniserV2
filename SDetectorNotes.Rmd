@@ -1,0 +1,218 @@
+---
+title: "Starling Detector Notes"
+author: "Vlad Obo"
+date: "10/6/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+
+source("birdsLib.R")
+
+```
+
+## About this document
+
+## Problem Description
+
+* We have massive sound records  and need to find if there are starling calls
+
+* There are a data set of starling calls 1000+ records
+
+* We think the data in hands reasonably cover the real conditions
+
+* we develop specific application for starlings
+
+* we consider mel frequency cepstrum coeffisients as a feature and HTK and KERAS as ML tools
+
+
+## Parts
+
+### Choosing MFCC parameters
+
+After playing the data the following numbers were chosen as MFCC's parameters. 
+
+Happy to explaine the choice.
+
+```{r, echo=TRUE}
+hopt
+
+wint 
+
+getMel
+```
+
+
+
+### Bird call detector
+
+* Simple detector to cut birds calls from lengthy sound records would be good to have
+
+* I called it "MFCC power"
+
+* The function is as below
+
+```{r}
+getMCPow
+```
+
+* How it works. Using 15 seconds from joined starling decreasin calls as an example
+
+```{r}
+sigDir="../"
+fn="DecreasingCallLargeTmp.wav"
+w<-readWave(paste0(sigDir, fn), from = 0, to = 15, units = "sec")
+
+plot(w)
+
+viewSpec(w)
+
+```
+
+![](starlExample.png)
+
+```{r}
+```
+
+```{r}
+ss<-getMel(w)
+
+tt<-(1:nrow(ss)) * hopt
+matplot(tt, ss, type="l", main="MFCCs, all")
+```
+
+
+
+```{r}
+pov=getMCPow(ss)
+plot(pov, type="b", main="MFFC Power")
+
+showMCPow(pov)
+title(main="Median filter")
+```
+
+* I use this file `r fn` to produce the estimate for target window length
+Let's use target window size in range `r (win.range<-c(0.3, 0.6))` sec
+
+```{r}
+wins<-readWave(paste0(sigDir, fn)) %>%
+  getMel %>%
+  getMCPow %>%
+  getAWins
+
+ll<-with(wins, end-start)
+
+plot(sort(ll))
+abline(h=win.range, lty=2, col="red")
+
+
+```
+
+
+
+
+## Real audio
+
+
+```{r, echo=FALSE}
+sigDir<-"/Volumes/VladBackup/Birds/StarlingCalls/Ron Sinclair_Turretfield_2009/"
+lfn<-"MU000_20091021_172000.wav"
+ifn=paste0(sigDir, lfn)
+
+wL<-mono(readWave(ifn, from=0, to=10, units="minutes"))
+
+```
+
+* Now  working with unprocessed record `r lfn`
+
+```{r, echo=FALSE}
+plot(wL, main="First 10 min")
+
+pov <- getMel(wL) %>%  getMCPow 
+  
+pov %>% showMCPow(tit="10 minutes")
+
+showMCPow(pov, xl = c(1, 100), tit="100s")
+showMCPow(pov, xl = c(40, 80))
+showMCPow(pov, xl = c(40, 60))
+plot(wL, xlim=c(40,60))
+```
+
+## Action windows in real audio file
+
+
+
+* Now worrking on the file  `r lfn` (the first 1 hour only here to avoid memory problems)
+
+* We seek time windows with enough action in them
+
+* It means when the median filter output is greater than the threshold
+
+* Threshold used by default (see function "getAWins") is the top quartile of "pov"
+
+```{r}
+## be careful -- remove the tmp file when changing the input wav
+tmp.fn="action.wins.RData"
+if (file.exists(tmp.fn)) load(tmp.fn) else {
+action.wins <-  paste0(sigDir, lfn) %>%
+  readWave(from=0, to = 60, units="min") %>%
+  mono %>%
+  getMel() %>%
+  getMCPow() %>%
+  getAWins()
+save(action.wins, file=tmp.fn) } 
+
+ll<-with(action.wins, end-start)
+
+plot(sort(ll), log="y")
+abline(h=win.range, col="red", lty=2)
+
+
+ii<-which(inrange(ll, win.range))
+```
+
+
+* Number of action windows similar to starling decr. call window size
+```{r}
+table(inrange(ll, win.range))
+```
+
+
+* Total sum of lengths for the windows of these sizes in sec (this is from the record of 1h)
+
+```{r}
+sum(ll[ii])
+```
+
+
+* Let's generate wav with fragments and look at it in Raven
+
+```{r}
+ofn="wins.wav"
+winsWav(infile=ifn, outfile=ofn, ww=action.wins[ii,])
+
+```
+
+
+## Test file
+
+```{r}
+sigDir<-"/Volumes/VladBackup/Birds/StarlingCalls/"
+lfn<-"ma5ho-ehcz5.L.wav"
+wL<-mono(readWave(paste0(sigDir, lfn)))
+
+plot(wL, main=lfn)
+viewSpec(wL, main=lfn)
+
+ss=getMel(wL)
+pov=getMCPow(ss)
+showMCPow(pov, tit=lfn)
+```
+
+
+* Make
