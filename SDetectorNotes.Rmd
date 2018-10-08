@@ -97,7 +97,7 @@ title(main="Median filter")
 ```
 
 * I use this file `r fn` to produce the estimate for target window length
-Let's use target window size in range `r (win.range<-c(0.3, 0.6))` sec
+Let's use target window size in range `r (win.range<-c(0.4, 0.8))` sec
 
 ```{r}
 wins<-readWave(paste0(sigDir, fn)) %>%
@@ -159,13 +159,15 @@ plot(wL, xlim=c(40,60))
 ## be careful -- remove the tmp file when changing the input wav
 tmp.fn="action.wins.RData"
 if (file.exists(tmp.fn)) load(tmp.fn) else {
-action.wins <-  paste0(sigDir, lfn) %>%
-  readWave(from=0, to = 60, units="min") %>%
-  mono %>%
-  getMel() %>%
-  getMCPow() %>%
+action.wins <- (ppov<- paste0(sigDir, lfn) %>%
+                  readWave(from=0, to = 30, units="min") %>%
+                  mono %>%
+                  getMel() %>%
+                  getMCPow()
+                ) %>%
   getAWins()
-save(action.wins, file=tmp.fn) } 
+
+save(ppov, action.wins, file=tmp.fn) } 
 
 ll<-with(action.wins, end-start)
 

@@ -67,7 +67,7 @@ winsWav <- function(infile=ifn, outfile=ofn, ww=action.wins[ii,], pad=seq(0, 0.5
   #pad -- space between recors, in samples
   snd<-pad
   
-  tmp<-apply(ww, 1, function(x) c(readWave(ifn, from=x[1], to=x[2], units = "sec")@left, pad))
+  tmp<-apply(ww, 1, function(x) c(readWave(ifn, from=max(0,x[1]-10*hopt), to=x[2]+10*hopt, units = "sec")@left, pad))
   snd<-c(pad, do.call("c",tmp))
   snd<-Wave(left=snd)
   writeWave(snd,filename = outfile , extensible = F)
