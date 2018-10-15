@@ -74,11 +74,6 @@ viewSpec(w)
 
 ```
 
-![](starlExample.png)
-
-```{r}
-```
-
 ```{r}
 ss<-getMel(w)
 
@@ -96,8 +91,15 @@ showMCPow(pov)
 title(main="Median filter")
 ```
 
+
+```{r}
+win.range<-c(0.4, 0.8)
+```
+
+
 * I use this file `r fn` to produce the estimate for target window length
-Let's use target window size in range `r (win.range<-c(0.4, 0.8))` sec
+
+* The target window size set to  `r win.range` sec
 
 ```{r}
 wins<-readWave(paste0(sigDir, fn)) %>%
@@ -124,30 +126,30 @@ sigDir<-"/Volumes/VladBackup/Birds/StarlingCalls/Ron Sinclair_Turretfield_2009/"
 lfn<-"MU000_20091021_172000.wav"
 ifn=paste0(sigDir, lfn)
 
-wL<-mono(readWave(ifn, from=0, to=10, units="minutes"))
+sta=0
+sto=30
+wL<-mono(readWave(ifn, from=sta, to=sto, units="minutes"))
 
 ```
 
-* Now  working with unprocessed record `r lfn`
+* Now worrking on the file  `r lfn` (the first helf hour only here to avoid memory problems)
+
+* From `r sta` to `r sto`, in minutes
 
 ```{r, echo=FALSE}
-plot(wL, main="First 10 min")
+plot(wL, main=lfn, xlab="Time, s")
 
 pov <- getMel(wL) %>%  getMCPow 
   
-pov %>% showMCPow(tit="10 minutes")
+pov %>% showMCPow(tit=lfn)
 
-showMCPow(pov, xl = c(1, 100), tit="100s")
+showMCPow(pov, xl = c(1, 100), tit="first 100s")
 showMCPow(pov, xl = c(40, 80))
 showMCPow(pov, xl = c(40, 60))
 plot(wL, xlim=c(40,60))
 ```
 
 ## Action windows in real audio file
-
-
-
-* Now worrking on the file  `r lfn` (the first 1 hour only here to avoid memory problems)
 
 * We seek time windows with enough action in them
 
@@ -158,7 +160,9 @@ plot(wL, xlim=c(40,60))
 ```{r}
 ## be careful -- remove the tmp file when changing the input wav
 tmp.fn="action.wins.RData"
+#file.remove(tmp.fn)
 if (file.exists(tmp.fn)) load(tmp.fn) else {
+  
 action.wins <- (ppov<- paste0(sigDir, lfn) %>%
                   readWave(from=0, to = 30, units="min") %>%
                   mono %>%
@@ -166,7 +170,6 @@ action.wins <- (ppov<- paste0(sigDir, lfn) %>%
                   getMCPow()
                 ) %>%
   getAWins()
-
 save(ppov, action.wins, file=tmp.fn) } 
 
 ll<-with(action.wins, end-start)
@@ -179,7 +182,7 @@ ii<-which(inrange(ll, win.range))
 ```
 
 
-* Number of action windows similar to starling decr. call window size
+* Number of action windows similar to starling decr.call window size
 ```{r}
 table(inrange(ll, win.range))
 ```
@@ -191,8 +194,7 @@ table(inrange(ll, win.range))
 sum(ll[ii])
 ```
 
-
-* Let's generate wav with fragments and look at it in Raven
+* Let's generate wav including only fragments determined by the action windows. Accomponying selection table is written too. The can be viewed by Raven
 
 ```{r}
 ofn="wins.wav"
@@ -201,20 +203,33 @@ winsWav(infile=ifn, outfile=ofn, ww=action.wins[ii,])
 ```
 
 
-## Test file
+* Selection table to be used with original file to show these selected windows
 
 ```{r}
-sigDir<-"/Volumes/VladBackup/Birds/StarlingCalls/"
-lfn<-"ma5ho-ehcz5.L.wav"
-wL<-mono(readWave(paste0(sigDir, lfn)))
 
-plot(wL, main=lfn)
-viewSpec(wL, main=lfn)
+writeSelectionTable(wins=action.wins, ofn="actionWins.txt")
 
-ss=getMel(wL)
-pov=getMCPow(ss)
-showMCPow(pov, tit=lfn)
 ```
+
+
+
+
+
+
+<!-- ## Test file -->
+
+<!-- ```{r} -->
+<!-- sigDir<-"/Volumes/VladBackup/Birds/StarlingCalls/" -->
+<!-- lfn<-"ma5ho-ehcz5.L.wav" -->
+<!-- wL<-mono(readWave(paste0(sigDir, lfn))) -->
+
+<!-- plot(wL, main=lfn) -->
+<!-- viewSpec(wL, main=lfn) -->
+
+<!-- ss=getMel(wL) -->
+<!-- pov=getMCPow(ss) -->
+<!-- showMCPow(pov, tit=lfn) -->
+<!-- ``` -->
 
 
 * Make
