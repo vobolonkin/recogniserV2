@@ -93,7 +93,7 @@ winsWav <- function(infile=ifn, outfile=ofn, ww=action.wins[ii,], pad=seq(0, 0.5
   ll=with(ww, end-start)
   ds=length(pad)/samp.rate
   tmp<-as.vector(rbind(ds, ll+2*win.wing))
-  tmp[2]<-tmp[2]-win.wing
+  #tmp[2]<-tmp[2]-win.wing
   wins<-data.frame(matrix(cumsum(tmp), byrow = T, ncol=2, dimnames=list(NULL, c("start", "end"))))
   
   writeSelectionTable(wins=wins, ofn=sub("\\.wav$", "SelectionTable.txt", outfile))

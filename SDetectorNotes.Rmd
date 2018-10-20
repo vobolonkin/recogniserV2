@@ -211,25 +211,24 @@ writeSelectionTable(wins=action.wins, ofn="actionWins.txt")
 
 ```
 
+## Test file
 
+```{r}
+sigDir<-"/Volumes/VladBackup/Birds/StarlingCalls/"
+lfn<-"ma5ho-ehcz5.L.wav"
+wL<-mono(readWave(paste0(sigDir, lfn)))
 
+plot(wL, main=lfn)
+viewSpec(wL, main=lfn)
 
+ss=getMel(wL)
+pov=getMCPow(ss)
+showMCPow(pov, tit=lfn)
 
+xll=c(0,300)
+op<-par(mfcol=c(3,1), mar=c(0,1,0,1))
+viewSpec(wL, start.time = xll[1], page.length = xll[2])
+showMCPow(pov, tit=lfn, xl = xll)
+plot(wL, xlim=xll)
+```
 
-<!-- ## Test file -->
-
-<!-- ```{r} -->
-<!-- sigDir<-"/Volumes/VladBackup/Birds/StarlingCalls/" -->
-<!-- lfn<-"ma5ho-ehcz5.L.wav" -->
-<!-- wL<-mono(readWave(paste0(sigDir, lfn))) -->
-
-<!-- plot(wL, main=lfn) -->
-<!-- viewSpec(wL, main=lfn) -->
-
-<!-- ss=getMel(wL) -->
-<!-- pov=getMCPow(ss) -->
-<!-- showMCPow(pov, tit=lfn) -->
-<!-- ``` -->
-
-
-* Make
