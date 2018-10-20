@@ -24,33 +24,31 @@ ars<-list(  samples=wL,
 )
 
 
-ars$minfreq<-1000
-
-
-
-mf<-do.call("melfcc", ars)
+#mf<-do.call("melfcc", ars)
 
 ##Grid picture by min and max freq
 #Saved as "gridDensityMinMaxFreq*.pdf"
 
 op<-par(mfcol=c(4, 4), mar=c(1,1,1,1))
-for (minfre in c(1000, 2000)){
+for (mafre in c(5000, 20000)){
 #for (minfre in c(3000, 5000)){
-    cat(minfre,"\n")
-  for (wco in c(2, 5)){
+    cat(mafre,"\n")
+  for (wco in c(1.5, 3)){
  #   cat("\t",maxfre,"\n")
-    for(hopt in c(0.02, 0.05)){
+#    for(hopt in c(0.01, 0.05)){
       cat("\t\t",hopt,"\n")
-      for (numc in c(36, 48)){
+      for (numc in c(6, 12, 24, 36)){
         cat("\t\t",numc,"\n")
-        ars$minfreq<-minfre
+        ars$minfreq<-2000
         ars$numcep<-numc
-        ars$maxfreq<-5000
-        ars$hoptime=hopt
+        ars$maxfreq<-mafre
+        ars$hoptime=0.025
         ars$wintime=wco*hopt
         mf<-do.call("melfcc", ars)
-        plot(density(colSums(t(abs(mf)))), xlim=c(100,400), ylim=c(0,0.05), main="")
-        title(main=paste("i",ars$minfreq, " x:", ars$maxfreq, " h:", hopt, " w:",wco, "n:", numc, sep=""), line=-1)
+        plot(density(colSums(t(abs(mf[,-1])))),
+             #xlim=c(0,200), ylim=c(0,0.05), 
+             main="")
+        title(main=c(paste("i",ars$minfreq, " x:", ars$maxfreq, " h:", hopt, " w:",wco, "n:", numc, sep=""),"mf[,-1]"), line=-1)
         grid()
       }
     }
