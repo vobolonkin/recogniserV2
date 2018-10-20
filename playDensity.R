@@ -56,36 +56,3 @@ for (minfre in c(1000, 2000)){
     }
   }
 }
-
-### By windows
-ars<-list(  samples=wL,
-            minfreq = 3000,
-            maxfreq = 10000,
-            fbtype = "mel",
-            numcep = 12,
-            hoptime = hopt, 
-            wintime = wint
-)
-
-
-
-
-(
-  x,
-  minfreq = 3000,
-  maxfreq = 10000,
-  fbtype = "mel",
-  numcep = 12,
-  hopt = hopt, 
-  wint = wint
-)
-return(tmp)
-}
-
-getMCPow<-function(x, excl=1){
-  # x -- typically -- melcepstrum coefficients
-  colSums(t(abs(x[,-(excl)])))
-}
-
-
-for(mf in c(200, 500, 1000, 2000, 3000, 4000, 5000))
