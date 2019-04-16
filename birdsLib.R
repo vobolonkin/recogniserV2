@@ -4,25 +4,28 @@ library(dplyr)
 
 
 samp.rate = 44100
-hopt = 0.025
-wint = hopt*3
+hopt = 0.025       # Sec, MFC Window Step  
+wint = hopt*3      # Sec, Window width
 kk=11 #median filter length
 
+melArgs.lst<-list(
+  samples=NULL,
+  minfreq = 3000,
+  maxfreq = 10000,
+  fbtype = "bark", # 
+  numcep = 12,
+  hoptime = hopt, 
+  wintime = wint
+  )
 
-getMel <- function(x) {
+  
+getMel <- function(x, args.lst=melArgs.lst) {
   # produces melcepstrum coeffs
   # x -- Wave object
+#x<-w
   require(tuneR)
-  
-  tmp<-melfcc(
-    x,
-    minfreq = 3000,
-    maxfreq = 10000,
-    fbtype = "mel",
-    numcep = 12,
-    hopt = hopt, 
-    wint = wint
-  )
+  args.lst$samples<-x
+  tmp<-do.call("melfcc", args.lst)
   return(tmp)
 }
 
@@ -98,3 +101,4 @@ winsWav <- function(infile=ifn, outfile=ofn, ww=action.wins[ii,], pad=seq(0, 0.5
   
   writeSelectionTable(wins=wins, ofn=sub("\\.wav$", "SelectionTable.txt", outfile))
 }
+

@@ -2,7 +2,9 @@
 title: "Starling Detector Notes"
 author: "Vlad Obo"
 date: "10/6/2018"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
-
+rm(list=ls(all=T))
 source("birdsLib.R")
 
 ```
@@ -211,24 +213,6 @@ writeSelectionTable(wins=action.wins, ofn="actionWins.txt")
 
 ```
 
-## Test file
+# To Be Continued
 
-```{r}
-sigDir<-"/Volumes/VladBackup/Birds/StarlingCalls/"
-lfn<-"ma5ho-ehcz5.L.wav"
-wL<-mono(readWave(paste0(sigDir, lfn)))
-
-plot(wL, main=lfn)
-viewSpec(wL, main=lfn)
-
-ss=getMel(wL)
-pov=getMCPow(ss)
-showMCPow(pov, tit=lfn)
-
-xll=c(0,300)
-op<-par(mfcol=c(3,1), mar=c(0,1,0,1))
-viewSpec(wL, start.time = xll[1], page.length = xll[2])
-showMCPow(pov, tit=lfn, xl = xll)
-plot(wL, xlim=xll)
-```
-
+Next see "WorkingWithOneSoundFile.Rmd"
